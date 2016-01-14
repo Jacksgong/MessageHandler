@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2016 Jacksgong(blog.dreamtobe.cn).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package cn.dreamtobe.messagehandler;
 
 import android.os.Handler;
@@ -13,6 +28,8 @@ import java.util.ArrayList;
  * support: pause, resume, stop
  * performance: use shallow clone instead of lock
  * why not extends Handler directly? so many methods relate pause and resume operate are final or hide.
+ * <p/>
+ * Tips: All method thread safe
  */
 public class MessageHandler {
 
@@ -100,9 +117,40 @@ public class MessageHandler {
         return false;
     }
 
+    /**
+     * @return is consumed
+     */
+    public boolean dispatchSendMessage(Message msg, long uptimeMillis) {
+        boolean consumed;
+
+        do {
+            if (isDead) {
+                consumed = true;
+                break;
+            }
+
+            MessageHolder messageHolder = new MessageHolder(msg, uptimeMillis);
+
+            if (isPause) {
+                consumed = true;
+                messageHolder.stop();
+            } else {
+                consumed = false;
+            }
+
+            messageHolderList.add(messageHolder);
+            break;
+
+        } while (false);
+
+
+        return consumed;
+    }
+
     public void handleMessage(Message msg) {
     }
 
+    // ----------------------------------------------------------
     /**
      * pause and hold all message
      */
@@ -161,14 +209,14 @@ public class MessageHandler {
     /**
      * @see Handler#sendMessage(Message)
      */
-    public final boolean sendMessage(Message msg) {
+    public boolean sendMessage(Message msg) {
         return handler.sendMessage(msg);
     }
 
     /**
      * @see Handler#sendMessageDelayed(Message, long)
      */
-    public final boolean sendMessageDelayed(Message msg, long delayMillis) {
+    public boolean sendMessageDelayed(Message msg, long delayMillis) {
         return handler.sendMessageDelayed(msg, delayMillis);
     }
 
@@ -181,51 +229,61 @@ public class MessageHandler {
     }
 
     /**
-     * @return is consumed
+     * @see Handler#sendMessageAtFrontOfQueue(Message)
      */
-    public boolean dispatchSendMessage(Message msg, long uptimeMillis) {
-        boolean consumed;
-
-        do {
-            if (isDead) {
-                consumed = true;
-                break;
-            }
-
-            MessageHolder messageHolder = new MessageHolder(msg, uptimeMillis);
-
-            if (isPause) {
-                consumed = true;
-                messageHolder.stop();
-            } else {
-                consumed = false;
-            }
-
-            messageHolderList.add(messageHolder);
-            break;
-
-        } while (false);
-
-
-        return consumed;
+    public boolean sendMessageAtFrontOfQueue(Message msg) {
+        if (dispatchSendMessage(msg, 0)) {
+            return false;
+        }
+        return handler.sendMessageAtFrontOfQueue(msg);
     }
+
+    /**
+     * @see Handler#post(Runnable)
+     */
+    public final boolean post(Runnable r) {
+        return handler.post(r);
+    }
+
+    /**
+     * @see Handler#postDelayed(Runnable, long)
+     */
+    public boolean postDelayed(Runnable r, long delayMillis) {
+        return handler.postAtTime(r, delayMillis);
+    }
+
+    //TODO support runWithScissors & postAtFrontOfQueue
 
     /**
      * @see Handler#removeMessages(int)
      */
     public void removeMessages(int what) {
-        MessageHolder h = null;
         ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
         for (MessageHolder messageHolder : list) {
             if (messageHolder.msg.what == what) {
-                h = messageHolder;
-                break;
+                if (messageHolder != null) {
+                    messageHolderList.remove(messageHolder);
+                }
             }
         }
-        if (h != null) {
-            messageHolderList.remove(h);
-        }
+
         handler.removeMessages(what);
+    }
+
+    /**
+     * @see Handler#removeCallbacks(Runnable)
+     */
+    public final void removeCallbacks(Runnable r) {
+        ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
+        for (MessageHolder messageHolder : list) {
+            if (messageHolder.msg.getCallback() == r) {
+                if (messageHolder != null) {
+                    messageHolderList.remove(messageHolder);
+                }
+            }
+        }
+
+        handler.removeCallbacks(r);
     }
 
     /**
@@ -234,6 +292,7 @@ public class MessageHandler {
     public Message obtainMessage() {
         return handler.obtainMessage();
     }
+
 
     public static class MessageHolder {
         private Message msg;

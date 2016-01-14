@@ -6,7 +6,7 @@
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ *      
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,10 +34,10 @@ import java.util.ArrayList;
  */
 public class MessageHandler {
 
-    private final static String TAG = "MessageHandler";
     private boolean isDead;
     private volatile boolean isPause;
-    private ArrayList<MessageHolder> messageHolderList = new ArrayList<>();
+
+    private MessageHolderList list = new MessageHolderList();
 
     private static class DispatchHandler extends Handler {
         private WeakReference<MessageHandler> messageHandlerWeakReference;
@@ -110,13 +110,7 @@ public class MessageHandler {
             return true;
         }
 
-        final ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
-        for (MessageHolder messageHolder : list) {
-            if (messageHolder.msg == msg) {
-                messageHolderList.remove(messageHolder);
-                break;
-            }
-        }
+        list.remove(msg);
 
         return false;
     }
@@ -142,7 +136,8 @@ public class MessageHandler {
                 consumed = false;
             }
 
-            messageHolderList.add(messageHolder);
+            list.add(messageHolder);
+
             break;
 
         } while (false);
@@ -155,6 +150,7 @@ public class MessageHandler {
     }
 
     // ----------------------------------------------------------
+
     /**
      * pause and hold all message
      */
@@ -163,11 +159,12 @@ public class MessageHandler {
             return;
         }
         isPause = true;
-        final ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
-        for (MessageHolder messageHolder : list) {
+
+        final ArrayList<MessageHolder> cloneList = list.clone();
+        for (MessageHolder messageHolder : cloneList) {
             messageHolder.stop();
         }
-        Log.d(TAG, String.format("pause %d", list.size()));
+        logD("pause %d", cloneList.size());
         handler.removeCallbacksAndMessages(null);
     }
 
@@ -179,21 +176,21 @@ public class MessageHandler {
             return;
         }
         isPause = false;
-        final ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
-        messageHolderList.clear();
-        for (MessageHolder messageHolder : list) {
+        final ArrayList<MessageHolder> cloneList = list.clone();
+        list.clearButHoldMessage();
+        for (MessageHolder messageHolder : cloneList) {
             messageHolder.resume();
             handler.sendMessageDelayed(messageHolder.msg, messageHolder.delay);
         }
 
-        Log.d(TAG, String.format("resume %d", list.size()));
+        logD("resume %d", cloneList.size());
     }
 
-    public boolean isPaused(){
+    public boolean isPaused() {
         return this.isPause;
     }
 
-    public boolean isDead(){
+    public boolean isDead() {
         return this.isDead;
     }
 
@@ -201,7 +198,7 @@ public class MessageHandler {
      * cancel all message send by this handler
      */
     public void cancelAllMessage() {
-        messageHolderList.clear();
+        list.clear();
         handler.removeCallbacksAndMessages(null);
     }
 
@@ -279,15 +276,7 @@ public class MessageHandler {
      * @see Handler#removeMessages(int)
      */
     public void removeMessages(int what) {
-        ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
-        for (MessageHolder messageHolder : list) {
-            if (messageHolder.msg.what == what) {
-                if (messageHolder != null) {
-                    messageHolderList.remove(messageHolder);
-                }
-            }
-        }
-
+        list.remove(what);
         handler.removeMessages(what);
     }
 
@@ -295,15 +284,7 @@ public class MessageHandler {
      * @see Handler#removeCallbacks(Runnable)
      */
     public final void removeCallbacks(Runnable r) {
-        ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
-        for (MessageHolder messageHolder : list) {
-            if (messageHolder.msg.getCallback() == r) {
-                if (messageHolder != null) {
-                    messageHolderList.remove(messageHolder);
-                }
-            }
-        }
-
+        list.remove(r);
         handler.removeCallbacks(r);
     }
 
@@ -315,14 +296,25 @@ public class MessageHandler {
     }
 
 
+    @Override
+    protected void finalize() throws Throwable {
+        list.clear();
+        super.finalize();
+    }
+
     public static class MessageHolder {
         private Message msg;
         private long upTimeMills;
 
+        private Message compareMsg;
+
         private long delay;
 
         public MessageHolder(final Message msg, final long upTimeMills) {
-            this.msg = msg;
+            // Message may recycle by Looper#looper/MessageQueue#removexxx
+            this.compareMsg = msg;
+            // Message will not be recycle by android framework, so safe.
+            this.msg = Message.obtain(msg);
             this.upTimeMills = upTimeMills;
         }
 
@@ -333,5 +325,119 @@ public class MessageHandler {
         public void resume() {
             delay = Math.min(0, delay);
         }
+
+        public void dead() {
+            if (msg != null) {
+                // flag must be clear, free to recycle.
+                msg.recycle();
+                msg = null;
+            }
+
+        }
+
+        @Override
+        protected void finalize() throws Throwable {
+            dead();
+            super.finalize();
+        }
+
+        public boolean compare(final Message msg) {
+            return this.compareMsg == msg;
+        }
+
+        public boolean compare(final int what) {
+            return this.msg.what == what;
+        }
+
+        public boolean compare(final Runnable runnable) {
+            return this.msg.getCallback() == runnable;
+        }
+
     }
+
+    /**
+     * why this? for being good for Message recycle or not recycle.
+     */
+    private static class MessageHolderList {
+        private ArrayList<MessageHolder> messageHolderList = new ArrayList<>();
+
+        boolean add(final Message msg, final long delay) {
+            return add(new MessageHolder(msg, delay));
+        }
+
+        boolean add(MessageHolder holder) {
+            return messageHolderList.add(holder);
+        }
+
+        boolean remove(final int what) {
+            ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
+            for (MessageHolder messageHolder : list) {
+                if (messageHolder.compare(what)) {
+                    if (messageHolder != null) {
+                        return messageHolderList.remove(messageHolder);
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        boolean remove(final Runnable callback) {
+            ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
+            for (MessageHolder messageHolder : list) {
+                if (messageHolder.compare(callback)) {
+                    if (messageHolder != null) {
+                        return messageHolderList.remove(messageHolder);
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        boolean remove(final Message msg) {
+            ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
+            for (MessageHolder messageHolder : list) {
+                if (messageHolder.compare(msg)) {
+                    if (messageHolder != null) {
+                        return messageHolderList.remove(messageHolder);
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public void clear() {
+            ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
+            messageHolderList.clear();
+            for (MessageHolder messageHolder : list) {
+                messageHolder.dead();
+            }
+        }
+
+        /**
+         * natural: in case of will be recycle by system framework, such as: will invoke sendMessage
+         * and Looper#looper will invoke recycleUnchecked to recycle Message.
+         */
+        public void clearButHoldMessage() {
+            messageHolderList.clear();
+        }
+
+        @Override
+        protected ArrayList<MessageHolder> clone() {
+            return (ArrayList<MessageHolder>) messageHolderList.clone();
+        }
+    }
+
+    private final static String TAG = "MessageHandler";
+    public static boolean NEED_LOG = false;
+
+    private static void logD(final String msg, final Object... args) {
+        if (!NEED_LOG) {
+            return;
+        }
+        Log.d(TAG, String.format(msg, args));
+    }
+
 }

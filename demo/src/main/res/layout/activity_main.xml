@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/random_divide_exactly_1_tv"
+        style="@style/TimeTextStyle"
+        android:text="-"
+        android:textColor="@color/colorAccent" />
+
+    <TextView
+        android:id="@+id/random_divide_exactly_2_tv"
+        style="@style/TimeTextStyle"
+        android:layout_marginTop="5dp"
+        android:text="-"
+        android:textColor="@color/colorAccent" />
+
+    <TextView
+        android:id="@+id/random_divide_exactly_3_tv"
+        style="@style/TimeTextStyle"
+        android:layout_marginTop="5dp"
+        android:text="-"
+        android:textColor="@color/colorAccent" />
+
+    <TextView
+        android:id="@+id/random_divide_exactly_4_tv"
+        style="@style/TimeTextStyle"
+        android:layout_marginTop="5dp"
+        android:text="-"
+        android:textColor="@color/colorAccent" />
+
+    <TextView
+        android:id="@+id/random_divide_exactly_5_tv"
+        style="@style/TimeTextStyle"
+        android:layout_marginTop="5dp"
+        android:text="-"
+        android:textColor="@color/colorAccent" />
+
+
+    <TextView
+        android:id="@+id/random_divide_exactly_6_tv"
+        style="@style/TimeTextStyle"
+        android:layout_marginTop="5dp"
+        android:text="-"
+        android:textColor="@color/colorAccent" />
+
+    <TextView
+        android:id="@+id/total_tenth_sec_tv"
+        style="@style/TimeTextStyle"
+        android:layout_marginTop="10dp"
+        android:text="-" />
+
+    <TextView
+        android:id="@+id/calculagraph_tv"
+        style="@style/TimeTextStyle"
+        android:layout_marginTop="5dp"
+        android:text="-" />
+
+    <Button
+        android:id="@+id/action_btn"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:text="Pause"
+        android:textSize="16sp" />
+</LinearLayout>

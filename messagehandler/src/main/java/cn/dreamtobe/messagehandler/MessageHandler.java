@@ -18,6 +18,7 @@ package cn.dreamtobe.messagehandler;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
  */
 public class MessageHandler {
 
+    private final static String TAG = "MessageHandler";
     private boolean isDead;
     private volatile boolean isPause;
     private ArrayList<MessageHolder> messageHolderList = new ArrayList<>();
@@ -165,7 +167,8 @@ public class MessageHandler {
         for (MessageHolder messageHolder : list) {
             messageHolder.stop();
         }
-        cancelAllMessage();
+        Log.d(TAG, String.format("pause %d", list.size()));
+        handler.removeCallbacksAndMessages(null);
     }
 
     /**
@@ -182,6 +185,8 @@ public class MessageHandler {
             messageHolder.resume();
             handler.sendMessageDelayed(messageHolder.msg, messageHolder.delay);
         }
+
+        Log.d(TAG, String.format("resume %d", list.size()));
     }
 
     public boolean isPaused(){

@@ -88,6 +88,8 @@ public class MessageHandler {
 
     public MessageHandler() {
         handler = new DispatchHandler(new WeakReference<>(this));
+        isDead = false;
+        isPause = false;
     }
 
     /**
@@ -155,6 +157,9 @@ public class MessageHandler {
      * pause and hold all message
      */
     public void pause() {
+        if (isPause) {
+            return;
+        }
         isPause = true;
         final ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
         for (MessageHolder messageHolder : list) {
@@ -167,6 +172,9 @@ public class MessageHandler {
      * resume message
      */
     public void resume() {
+        if (!isPause) {
+            return;
+        }
         isPause = false;
         final ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
         messageHolderList.clear();
@@ -174,6 +182,14 @@ public class MessageHandler {
             messageHolder.resume();
             handler.sendMessageDelayed(messageHolder.msg, messageHolder.delay);
         }
+    }
+
+    public boolean isPaused(){
+        return this.isPause;
+    }
+
+    public boolean isDead(){
+        return this.isDead;
     }
 
     /**

@@ -37,10 +37,10 @@ public class MessageHandler {
     private boolean isDead;
     private volatile boolean isPause;
 
-    private MessageHolderList list = new MessageHolderList();
+    private final MessageHolderList list = new MessageHolderList();
 
     private static class DispatchHandler extends Handler {
-        private WeakReference<MessageHandler> messageHandlerWeakReference;
+        private final WeakReference<MessageHandler> messageHandlerWeakReference;
 
         public DispatchHandler(WeakReference<MessageHandler> messageHandlerWeakReference) {
             this.messageHandlerWeakReference = messageHandlerWeakReference;
@@ -78,15 +78,13 @@ public class MessageHandler {
                 return false;
             }
 
-            if (messageHandlerWeakReference.get().dispatchSendMessage(msg, uptimeMillis)) {
-                return false;
-            }
+            return !messageHandlerWeakReference.get().dispatchSendMessage(msg, uptimeMillis) // not consumed
+                    && super.sendMessageAtTime(msg, uptimeMillis);
 
-            return super.sendMessageAtTime(msg, uptimeMillis);
         }
     }
 
-    private DispatchHandler handler;
+    private final DispatchHandler handler;
 
     public MessageHandler() {
         handler = new DispatchHandler(new WeakReference<>(this));
@@ -95,12 +93,12 @@ public class MessageHandler {
     }
 
     /**
-     * for guarantee pause and killSelf in effect, final this method
+     * for guarantee pause and killSelf in effect, private this method
      * if you need, consider implement {@link #handleMessage(Message)}
      *
      * @return is consumed
      */
-    final public boolean dispatchMessage(Message msg) {
+    private boolean dispatchMessage(Message msg) {
         if (isDead) {
             return true;
         }
@@ -118,9 +116,10 @@ public class MessageHandler {
     /**
      * @return is consumed
      */
-    public boolean dispatchSendMessage(Message msg, long uptimeMillis) {
+    private boolean dispatchSendMessage(Message msg, long uptimeMillis) {
         boolean consumed;
 
+        //noinspection LoopStatementThatDoesntLoop
         do {
             if (isDead) {
                 consumed = true;
@@ -250,10 +249,8 @@ public class MessageHandler {
      * @see Handler#sendMessageAtFrontOfQueue(Message)
      */
     public boolean sendMessageAtFrontOfQueue(Message msg) {
-        if (dispatchSendMessage(msg, 0)) {
-            return false;
-        }
-        return handler.sendMessageAtFrontOfQueue(msg);
+        return !dispatchSendMessage(msg, 0) // not consumed
+                && handler.sendMessageAtFrontOfQueue(msg);
     }
 
     /**
@@ -303,10 +300,10 @@ public class MessageHandler {
     }
 
     public static class MessageHolder {
-        private Message msg;
-        private long upTimeMills;
+        private final Message msg;
+        private final long upTimeMills;
 
-        private Message compareMsg;
+        private final Message compareMsg;
 
         private long delay;
 
@@ -330,7 +327,6 @@ public class MessageHandler {
             if (msg != null) {
                 // flag must be clear, free to recycle.
                 msg.recycle();
-                msg = null;
             }
 
         }
@@ -359,7 +355,7 @@ public class MessageHandler {
      * why this? for being good for Message recycle or not recycle.
      */
     private static class MessageHolderList {
-        private ArrayList<MessageHolder> messageHolderList = new ArrayList<>();
+        private final ArrayList<MessageHolder> messageHolderList = new ArrayList<>();
 
         boolean add(final Message msg, final long delay) {
             return add(new MessageHolder(msg, delay));
@@ -370,12 +366,10 @@ public class MessageHandler {
         }
 
         boolean remove(final int what) {
-            ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
+            @SuppressWarnings("unchecked") ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
             for (MessageHolder messageHolder : list) {
                 if (messageHolder.compare(what)) {
-                    if (messageHolder != null) {
-                        return messageHolderList.remove(messageHolder);
-                    }
+                    return messageHolderList.remove(messageHolder);
                 }
             }
 
@@ -383,12 +377,10 @@ public class MessageHandler {
         }
 
         boolean remove(final Runnable callback) {
-            ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
+            @SuppressWarnings("unchecked") ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
             for (MessageHolder messageHolder : list) {
                 if (messageHolder.compare(callback)) {
-                    if (messageHolder != null) {
-                        return messageHolderList.remove(messageHolder);
-                    }
+                    return messageHolderList.remove(messageHolder);
                 }
             }
 
@@ -396,12 +388,10 @@ public class MessageHandler {
         }
 
         boolean remove(final Message msg) {
-            ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
+            @SuppressWarnings("unchecked") ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
             for (MessageHolder messageHolder : list) {
                 if (messageHolder.compare(msg)) {
-                    if (messageHolder != null) {
-                        return messageHolderList.remove(messageHolder);
-                    }
+                    return messageHolderList.remove(messageHolder);
                 }
             }
 
@@ -409,7 +399,7 @@ public class MessageHandler {
         }
 
         public void clear() {
-            ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
+            @SuppressWarnings("unchecked") ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
             messageHolderList.clear();
             for (MessageHolder messageHolder : list) {
                 messageHolder.dead();
@@ -424,8 +414,10 @@ public class MessageHandler {
             messageHolderList.clear();
         }
 
+        @SuppressWarnings({"CloneDoesntCallSuperClone", "CloneDoesntDeclareCloneNotSupportedException"})
         @Override
         protected ArrayList<MessageHolder> clone() {
+            //noinspection unchecked
             return (ArrayList<MessageHolder>) messageHolderList.clone();
         }
     }

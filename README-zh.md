@@ -3,6 +3,10 @@
 
 这个组件是一个简单小巧的Handler转发，主要是为了对外提供绑定目标Handler对象的所有消息的`暂停`、`恢复`、`废弃`、`取消所有队列中的消息`，用于整个完全解耦消息队列的全局性有效管理。
 
+> [ENGLISH DOC](https://github.com/Jacksgong/MessageHandler/blob/master/README.md)
+
+---
+
 > 随着RxJava的普及，逐渐有一些文章出来，提出了EventPool/Handler这些抛事件的架构已死或不建议使用的说法，而无非就是不易于调试，不够灵活。
 
 > 个人觉得确实很多事务用RxJava可以解决。但是就解耦，全局的大架构，还是这类抛事件的更易于阅读代码更加干净，甚至更易于全局性控制。

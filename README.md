@@ -3,6 +3,8 @@
 
 This is a simple Handler forwarding, for supporting `pause`、`resume`、`cancelAllMessage`、`killSelf` skills.
 
+> [中文文档](https://github.com/Jacksgong/MessageHandler/blob/master/README-zh.md)
+
 ## How to use?
 
 > All methods are Thread safe.

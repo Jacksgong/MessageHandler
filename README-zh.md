@@ -14,6 +14,15 @@
 > 个人觉得确实很多事务用RxJava可以解决。但是就解耦，全局的大架构，还是这类抛事件的更易于阅读代码更加干净，甚至更易于全局性控制。
 如picasso，业务非常的复杂，因此内部使用了Handler抛事件的方式来促使事务流的运作。
 
+## 在项目中引用
+
+```
+dependencies {
+    compile 'cn.dreamtobe.messagehandler:messagehandler:0.0.8'
+}
+```
+
+
 ## 使用场景
 
 如demo中的，需要全局暂停、恢复、清理、干掉整个消息队列，比如有复杂交错的消息传递逻辑需要全局性控制，这个`MessageHandler`将会有奇效。

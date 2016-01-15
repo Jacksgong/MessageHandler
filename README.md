@@ -7,6 +7,16 @@ This is a simple Handler forwarding, for supporting `pause`、`resume`、`cancel
 
 > [中文文档](https://github.com/Jacksgong/MessageHandler/blob/master/README-zh.md)
 
+## Installation
+
+MessageHandler is installed by adding the following dependency to your build.gradle file:
+
+```
+dependencies {
+    compile 'cn.dreamtobe.messagehandler:messagehandler:0.0.8'
+}
+```
+
 ## How to use?
 
 > All methods are Thread safe.

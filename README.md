@@ -1,4 +1,6 @@
 # MessageHandler
+
+[![Download][bintray_svg]][bintray_url]
 ![][license_2_svg]
 
 This is a simple Handler forwarding, for supporting `pause`、`resume`、`cancelAllMessage`、`killSelf` skills.
@@ -51,3 +53,5 @@ limitations under the License.
 ```
 
 [license_2_svg]: https://img.shields.io/hexpm/l/plug.svg
+[bintray_svg]: https://api.bintray.com/packages/jacksgong/maven/MessageHandler/images/download.svg
+[bintray_url]: https://bintray.com/jacksgong/maven/MessageHandler/_latestVersion

@@ -3,7 +3,7 @@
 
 这个组件是一个简单小巧的Handler转发，主要是为了对外提供绑定目标Handler对象的所有消息的`暂停`、`恢复`、`废弃`、`取消所有队列中的消息`，用于整个完全解耦消息队列的全局性有效管理。
 
-> [ENGLISH DOC](https://github.com/Jacksgong/MessageHandler/blob/master/README.md)
+> [ENGLISH](https://github.com/Jacksgong/MessageHandler/blob/master/README.md)
 
 ---
 

@@ -16,6 +16,7 @@
 package cn.dreamtobe.messagehandler;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
@@ -42,7 +43,22 @@ public class MessageHandler {
     private static class DispatchHandler extends Handler {
         private final WeakReference<MessageHandler> messageHandlerWeakReference;
 
-        public DispatchHandler(WeakReference<MessageHandler> messageHandlerWeakReference) {
+        DispatchHandler(WeakReference<MessageHandler> messageHandlerWeakReference) {
+            this.messageHandlerWeakReference = messageHandlerWeakReference;
+        }
+
+        DispatchHandler(WeakReference<MessageHandler> messageHandlerWeakReference, Callback callback) {
+            super(callback);
+            this.messageHandlerWeakReference = messageHandlerWeakReference;
+        }
+
+        DispatchHandler(WeakReference<MessageHandler> messageHandlerWeakReference, Looper looper) {
+            this(messageHandlerWeakReference, looper, null);
+        }
+
+        DispatchHandler(WeakReference<MessageHandler> messageHandlerWeakReference, Looper looper,
+                        Callback callback) {
+            super(looper, callback);
             this.messageHandlerWeakReference = messageHandlerWeakReference;
         }
 
@@ -88,6 +104,37 @@ public class MessageHandler {
 
     public MessageHandler() {
         handler = new DispatchHandler(new WeakReference<>(this));
+        isDead = false;
+        isPause = false;
+    }
+
+    /**
+     * @param looper The looper, must not be null!
+     * @see Handler#Handler(Looper)
+     */
+    public MessageHandler(final Looper looper) {
+        handler = new DispatchHandler(new WeakReference<>(this), looper);
+        isDead = false;
+        isPause = false;
+    }
+
+    /**
+     * @param callback The callback interface in which to handle messages, or null.
+     * @see Handler#Handler(Handler.Callback)
+     */
+    public MessageHandler(final Handler.Callback callback) {
+        handler = new DispatchHandler(new WeakReference<>(this), callback);
+        isDead = false;
+        isPause = false;
+    }
+
+    /**
+     * @param looper   The looper, must not be null!
+     * @param callback The callback interface in which to handle messages, or null.
+     * @see Handler#Handler(Looper, Handler.Callback)
+     */
+    public MessageHandler(final Looper looper, final Handler.Callback callback) {
+        handler = new DispatchHandler(new WeakReference<>(this), looper, callback);
         isDead = false;
         isPause = false;
     }

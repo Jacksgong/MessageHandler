@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                     actionBtn.setText("Pause");
                 } else {
                     handler.pause();
-                    actionBtn.setText("Start");
+                    actionBtn.setText("Resume");
                 }
             }
         });

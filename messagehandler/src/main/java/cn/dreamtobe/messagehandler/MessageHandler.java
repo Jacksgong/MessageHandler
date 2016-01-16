@@ -339,15 +339,8 @@ public class MessageHandler {
         return handler.obtainMessage();
     }
 
-
-    @Override
-    protected void finalize() throws Throwable {
-        list.clear();
-        super.finalize();
-    }
-
     public static class MessageHolder {
-        private final Message msg;
+        private Message msg;
         private final long upTimeMills;
 
         private final Message compareMsg;
@@ -372,16 +365,17 @@ public class MessageHandler {
 
         public void dead() {
             if (msg != null) {
-                // flag must be clear, free to recycle.
-                msg.recycle();
+                synchronized (this) {
+                    if (msg != null) {
+                        // flag must be clear, free to recycle.
+                        msg.recycle();
+                        // have to set nil, because the msg will be used in other places by recycle pool.
+                        msg = null;
+                    }
+
+                }
             }
 
-        }
-
-        @Override
-        protected void finalize() throws Throwable {
-            dead();
-            super.finalize();
         }
 
         public boolean compare(final Message msg) {
@@ -416,6 +410,7 @@ public class MessageHandler {
             @SuppressWarnings("unchecked") ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
             for (MessageHolder messageHolder : list) {
                 if (messageHolder.compare(what)) {
+                    messageHolder.dead();
                     return messageHolderList.remove(messageHolder);
                 }
             }
@@ -427,6 +422,7 @@ public class MessageHandler {
             @SuppressWarnings("unchecked") ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
             for (MessageHolder messageHolder : list) {
                 if (messageHolder.compare(callback)) {
+                    messageHolder.dead();
                     return messageHolderList.remove(messageHolder);
                 }
             }
@@ -438,6 +434,7 @@ public class MessageHandler {
             @SuppressWarnings("unchecked") ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
             for (MessageHolder messageHolder : list) {
                 if (messageHolder.compare(msg)) {
+                    messageHolder.dead();
                     return messageHolderList.remove(messageHolder);
                 }
             }

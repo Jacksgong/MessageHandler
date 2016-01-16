@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void onClickStart(final View view) {
+    public void onClickTriggerMessage(final View view) {
         handler.sendEmptyMessage(WHAT_INCREASE_TENTH_SEC);
         handler.sendEmptyMessage(WHAT_RANDOM_1);
         handler.sendEmptyMessage(WHAT_RANDOM_3);

@@ -73,8 +73,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:onClick="onClickTriggerMessage"
-        android:text="trigger message" />
+        android:onClick="onClickTriggerMessages"
+        android:text="trigger messages" />
 
     <LinearLayout
         android:layout_width="match_parent"

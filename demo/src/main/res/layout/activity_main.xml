@@ -3,7 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1.0" />
 
     <TextView
         android:id="@+id/random_divide_exactly_1_tv"
@@ -56,15 +62,51 @@
     <TextView
         android:id="@+id/calculagraph_tv"
         style="@style/TimeTextStyle"
-        android:layout_marginTop="5dp"
         android:text="-" />
 
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1.0" />
+
     <Button
-        android:id="@+id/action_btn"
         android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:layout_margin="10dp"
-        android:gravity="center"
-        android:text="Pause"
-        android:textSize="16sp" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:onClick="onClickStart"
+        android:text="start" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal">
+
+        <Button
+            style="@style/CustomBtnStyle"
+            android:onClick="onClickResume"
+            android:text="resume" />
+
+        <Button
+            style="@style/CustomBtnStyle"
+            android:onClick="onClickPause"
+            android:text="pause" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal">
+
+        <Button
+            style="@style/CustomBtnStyle"
+            android:onClick="onClickCancel"
+            android:text="cancel" />
+
+        <Button
+            android:id="@+id/handle_life_btn"
+            style="@style/CustomBtnStyle"
+            android:text="kill" />
+    </LinearLayout>
 </LinearLayout>

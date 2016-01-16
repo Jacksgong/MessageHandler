@@ -18,6 +18,7 @@ package cn.dreamtobe.messagehandler.demo;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -37,16 +38,16 @@ import cn.dreamtobe.messagehandler.MessageHandler;
  */
 public class MainActivity extends AppCompatActivity {
 
-    private MessageHandler handler = new MessageHandler() {
+
+    private Handler.Callback callback = new Handler.Callback() {
         @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
+        public boolean handleMessage(Message msg) {
             switch (msg.what) {
                 case WHAT_INCREASE_TENTH_SEC:
                     increase();
                     calculagraphTv.setText(generateCalculagraph());
                     totalTenthSecTv.setText(String.valueOf(totalTenthSec));
-                    sendEmptyMessageDelayed(WHAT_INCREASE_TENTH_SEC, 100);
+                    handler.sendEmptyMessageDelayed(WHAT_INCREASE_TENTH_SEC, 100);
                     break;
                 case WHAT_RANDOM_1:
                     random1 = checkRandom(msg.what, random1, randomDivideExactly1Tv);
@@ -67,8 +68,12 @@ public class MainActivity extends AppCompatActivity {
                     random6 = checkRandom(msg.what, random6, randomDivideExactly6Tv);
                     break;
             }
+            return false;
         }
     };
+
+
+    private MessageHandler handler = new MessageHandler(callback);
 
     private final static int WHAT_INCREASE_TENTH_SEC = -1;
     private final static int WHAT_RANDOM_1 = 1;
@@ -87,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             nextWhat = what == WHAT_RANDOM_6 ? WHAT_RANDOM_1 : what + 1;
         } else {
             nextWhat = what;
-            delay = r.nextInt(50);
+            delay = r.nextInt(50) + 50;
         }
 
         tv.setText(String.valueOf(random));
@@ -178,24 +183,23 @@ public class MainActivity extends AppCompatActivity {
         // just for print log to debug
         MessageHandler.NEED_LOG = true;
 
-
-        handler.sendEmptyMessage(WHAT_INCREASE_TENTH_SEC);
-        handler.sendEmptyMessage(WHAT_RANDOM_1);
-        actionBtn.setOnClickListener(new View.OnClickListener() {
+        handleLifeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (handler.isPaused()) {
-                    handler.resume();
-                    actionBtn.setText("Pause");
+                if (handler.isDead()) {
+                    onClickCreate(v);
+                    handleLifeBtn.setText("kill");
                 } else {
-                    handler.pause();
-                    actionBtn.setText("Resume");
+                    onClickKill(v);
+                    handleLifeBtn.setText("new handler");
                 }
             }
         });
+
     }
 
     private boolean needResumeMessageOnResume = false;
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -211,6 +215,32 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void onClickStart(final View view) {
+        handler.sendEmptyMessage(WHAT_INCREASE_TENTH_SEC);
+        handler.sendEmptyMessage(WHAT_RANDOM_1);
+        handler.sendEmptyMessage(WHAT_RANDOM_3);
+    }
+
+    public void onClickResume(final View view) {
+        handler.resume();
+    }
+
+    public void onClickPause(final View view) {
+        handler.pause();
+    }
+
+    public void onClickCancel(final View view) {
+        handler.cancelAllMessage();
+    }
+
+    public void onClickKill(final View view) {
+        handler.killSelf();
+    }
+
+    public void onClickCreate(final View view) {
+        handler = new MessageHandler(callback);
+    }
+
     private TextView randomDivideExactly1Tv;
     private TextView randomDivideExactly2Tv;
     private TextView randomDivideExactly3Tv;
@@ -219,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView randomDivideExactly6Tv;
     private TextView totalTenthSecTv;
     private TextView calculagraphTv;
-    private Button actionBtn;
+    private Button handleLifeBtn;
 
     private void assignViews() {
         randomDivideExactly1Tv = (TextView) findViewById(R.id.random_divide_exactly_1_tv);
@@ -230,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
         randomDivideExactly6Tv = (TextView) findViewById(R.id.random_divide_exactly_6_tv);
         totalTenthSecTv = (TextView) findViewById(R.id.total_tenth_sec_tv);
         calculagraphTv = (TextView) findViewById(R.id.calculagraph_tv);
-        actionBtn = (Button) findViewById(R.id.action_btn);
+        handleLifeBtn = (Button) findViewById(R.id.handle_life_btn);
     }
 
     @Override

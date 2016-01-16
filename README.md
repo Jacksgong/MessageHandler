@@ -7,6 +7,10 @@ This is a simple Handler forwarding, for supporting `pause`、`resume`、`cancel
 
 > [中文文档](https://github.com/Jacksgong/MessageHandler/blob/master/README-zh.md)
 
+## Demo
+
+![][demo_gif]
+
 ## Installation
 
 MessageHandler is installed by adding the following dependency to your build.gradle file:
@@ -65,3 +69,4 @@ limitations under the License.
 [license_2_svg]: https://img.shields.io/hexpm/l/plug.svg
 [bintray_svg]: https://api.bintray.com/packages/jacksgong/maven/MessageHandler/images/download.svg
 [bintray_url]: https://bintray.com/jacksgong/maven/MessageHandler/_latestVersion
+[demo_gif]: https://github.com/Jacksgong/MessageHandler/raw/master/art/demo.gif

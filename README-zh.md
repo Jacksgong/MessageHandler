@@ -14,6 +14,10 @@
 > 个人觉得确实很多事务用RxJava可以解决。但是就解耦，全局的大架构，还是这类抛事件的更易于阅读代码更加干净，甚至更易于全局性控制。
 如picasso，业务非常的复杂，因此内部使用了Handler抛事件的方式来促使事务流的运作。
 
+## Demo
+
+![][demo_gif]
+
 ## 在项目中引用
 
 ```
@@ -76,3 +80,4 @@ limitations under the License.
 [license_2_svg]: https://img.shields.io/hexpm/l/plug.svg
 [bintray_svg]: https://api.bintray.com/packages/jacksgong/maven/MessageHandler/images/download.svg
 [bintray_url]: https://bintray.com/jacksgong/maven/MessageHandler/_latestVersion
+[demo_gif]: https://github.com/Jacksgong/MessageHandler/raw/master/art/demo.gif

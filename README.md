@@ -17,7 +17,7 @@ MessageHandler is installed by adding the following dependency to your build.gra
 
 ```
 dependencies {
-    compile 'cn.dreamtobe.messagehandler:messagehandler:0.0.9'
+    compile 'cn.dreamtobe.messagehandler:messagehandler:0.1.0'
 }
 ```
 

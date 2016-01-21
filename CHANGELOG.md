@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+## Version 0.1.0
+
+_2016_01_21_
+
+- Feature: Add logs for debugging. (`@see MessageHandler.NEED_LOG`)
+
 ## Version 0.0.9
 
 _2016-01-16_

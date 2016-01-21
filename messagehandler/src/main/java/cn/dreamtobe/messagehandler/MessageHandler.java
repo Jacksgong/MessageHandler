@@ -146,6 +146,7 @@ public class MessageHandler {
      * @return is consumed
      */
     private boolean dispatchMessage(Message msg) {
+        logD("dispatchMessage %B %B %d", isDead, isPause, list.size());
         if (isDead) {
             return true;
         }
@@ -164,6 +165,7 @@ public class MessageHandler {
      * @return is consumed
      */
     private boolean dispatchSendMessage(Message msg, long uptimeMillis) {
+        logD("dispatchSendMessage %B %B %d", isDead, isPause, list.size());
         boolean consumed;
 
         //noinspection LoopStatementThatDoesntLoop
@@ -244,6 +246,7 @@ public class MessageHandler {
      * cancel all message send by this handler
      */
     public void cancelAllMessage() {
+        logD("cancelAllMessage %B %B %d", isDead, isPause, list.size());
         list.clear();
         handler.removeCallbacksAndMessages(null);
     }
@@ -252,6 +255,7 @@ public class MessageHandler {
      * this handler do not valid anymore
      */
     public void killSelf() {
+        logD("killSelf %B %B %d", isDead, isPause, list.size());
         isDead = true;
         cancelAllMessage();
     }
@@ -403,7 +407,13 @@ public class MessageHandler {
         }
 
         boolean add(MessageHolder holder) {
+            logD("List:Change %d + 1 add", size());
             return messageHolderList.add(holder);
+        }
+
+        private boolean remove(MessageHolder holder) {
+            logD("List:Change %d - 1 remove", size());
+            return messageHolderList.remove(holder);
         }
 
         boolean remove(final int what) {
@@ -411,7 +421,7 @@ public class MessageHandler {
             for (MessageHolder messageHolder : list) {
                 if (messageHolder.compare(what)) {
                     messageHolder.dead();
-                    return messageHolderList.remove(messageHolder);
+                    return remove(messageHolder);
                 }
             }
 
@@ -423,7 +433,7 @@ public class MessageHandler {
             for (MessageHolder messageHolder : list) {
                 if (messageHolder.compare(callback)) {
                     messageHolder.dead();
-                    return messageHolderList.remove(messageHolder);
+                    return remove(messageHolder);
                 }
             }
 
@@ -435,7 +445,7 @@ public class MessageHandler {
             for (MessageHolder messageHolder : list) {
                 if (messageHolder.compare(msg)) {
                     messageHolder.dead();
-                    return messageHolderList.remove(messageHolder);
+                    return remove(messageHolder);
                 }
             }
 
@@ -444,7 +454,7 @@ public class MessageHandler {
 
         public void clear() {
             @SuppressWarnings("unchecked") ArrayList<MessageHolder> list = (ArrayList<MessageHolder>) messageHolderList.clone();
-            messageHolderList.clear();
+            clearButHoldMessage();
             for (MessageHolder messageHolder : list) {
                 messageHolder.dead();
             }
@@ -455,6 +465,7 @@ public class MessageHandler {
          * and Looper#looper will invoke recycleUnchecked to recycle Message.
          */
         public void clearButHoldMessage() {
+            logD("List:Change %d = 0 clear", size());
             messageHolderList.clear();
         }
 
@@ -463,6 +474,10 @@ public class MessageHandler {
         protected ArrayList<MessageHolder> clone() {
             //noinspection unchecked
             return (ArrayList<MessageHolder>) messageHolderList.clone();
+        }
+
+        public int size(){
+            return messageHolderList.size();
         }
     }
 

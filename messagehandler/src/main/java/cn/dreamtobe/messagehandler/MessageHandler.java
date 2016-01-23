@@ -364,7 +364,7 @@ public class MessageHandler {
         }
 
         public void resume() {
-            delay = Math.min(0, delay);
+            delay = Math.max(0, delay);
         }
 
         public void dead() {

@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+## Version 0.1.1
+
+_2016_01_23_
+
+- Fix: resume fatal error: an calculation error of delay for resume.
+
 ## Version 0.1.0
 
 _2016_01_21_

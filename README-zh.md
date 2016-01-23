@@ -26,7 +26,7 @@
 
 ```
 dependencies {
-    compile 'cn.dreamtobe.messagehandler:messagehandler:0.1.0'
+    compile 'cn.dreamtobe.messagehandler:messagehandler:0.1.1'
 }
 ```
 

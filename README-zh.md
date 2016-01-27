@@ -1,7 +1,7 @@
 # MessageHandler
 
 [![Download][bintray_svg]][bintray_url]
-![][license_2_svg]
+[![Build Status][build_status_svg]][build_status_link]
 
 这个组件是一个简单小巧的Handler转发，主要是为了对外提供绑定目标Handler对象的所有消息的`暂停`、`恢复`、`废弃`、`取消所有队列中的消息`，用于整个完全解耦消息队列的全局性有效管理。
 
@@ -81,7 +81,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
-[license_2_svg]: https://img.shields.io/hexpm/l/plug.svg
 [bintray_svg]: https://api.bintray.com/packages/jacksgong/maven/MessageHandler/images/download.svg
 [bintray_url]: https://bintray.com/jacksgong/maven/MessageHandler/_latestVersion
 [demo_gif]: https://github.com/Jacksgong/MessageHandler/raw/master/art/demo.gif
+[build_status_svg]: https://travis-ci.org/Jacksgong/MessageHandler.svg?branch=master
+[build_status_link]: https://travis-ci.org/Jacksgong/MessageHandler

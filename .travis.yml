@@ -1,0 +1,13 @@
+language: android
+
+android:
+  components:
+    - platform-tools
+    - build-tools-23.0.1
+    - android-23
+    - extra
+
+after_script:
+    - cat ./demo/build/outputs/lint-results.xml
+
+sudo: false
